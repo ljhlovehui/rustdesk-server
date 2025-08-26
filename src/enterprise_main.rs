@@ -3,12 +3,12 @@ use flexi_logger::*;
 use hbb_common::{bail, config::RENDEZVOUS_PORT, ResultType};
 use hbbs::{common::*, *};
 
-mod auth;
-mod enterprise_database;
-mod enterprise_rendezvous_server;
-mod web_api;
+use crate::auth;
+use crate::enterprise_database;
+use crate::enterprise_rendezvous_server;
+use crate::web_api;
 
-use enterprise_rendezvous_server::EnterpriseRendezvousServer;
+use crate::enterprise_rendezvous_server::EnterpriseRendezvousServer;
 
 const RMEM: usize = 0;
 
