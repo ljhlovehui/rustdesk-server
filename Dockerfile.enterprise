@@ -1,0 +1,78 @@
+# Multi-stage build for RustDesk Enterprise Server
+FROM rust:1.75-slim as builder
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    pkg-config \
+    libssl-dev \
+    libsqlite3-dev \
+    build-essential \
+    cmake \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Copy source code
+COPY . .
+
+# Setup enterprise build
+RUN cp Cargo_enterprise.toml Cargo.toml
+
+# Build the application
+RUN cargo build --release --features enterprise
+
+# Runtime stage
+FROM debian:bookworm-slim
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    libssl3 \
+    libsqlite3-0 \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create rustdesk user
+RUN useradd -r -s /bin/false -m rustdesk
+
+# Create directories
+RUN mkdir -p /app/{bin,data,logs,web} && \
+    chown -R rustdesk:rustdesk /app
+
+# Copy binaries from builder
+COPY --from=builder /app/target/release/hbbs-enterprise /app/bin/
+COPY --from=builder /app/target/release/hbbr-enterprise /app/bin/
+COPY --from=builder /app/target/release/rustdesk-utils-enterprise /app/bin/
+
+# Copy web interface
+COPY --chown=rustdesk:rustdesk web/ /app/web/
+
+# Copy scripts
+COPY docker/healthcheck.sh /app/bin/
+COPY docker/entrypoint.sh /app/bin/
+
+# Set permissions
+RUN chmod +x /app/bin/*
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD /app/bin/healthcheck.sh
+
+# Switch to rustdesk user
+USER rustdesk
+
+# Set working directory
+WORKDIR /app
+
+# Expose ports
+EXPOSE 21115 21116 21117 21118 21119
+
+# Environment variables
+ENV RUST_LOG=info
+ENV RUSTDESK_ENTERPRISE=1
+ENV DATABASE_URL=sqlite:///app/data/enterprise.sqlite3
+
+# Default command
+CMD ["/app/bin/entrypoint.sh"]

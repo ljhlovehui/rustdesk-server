@@ -1,0 +1,145 @@
+version: '3.8'
+
+services:
+  hbbs-enterprise:
+    build:
+      context: .
+      dockerfile: Dockerfile.enterprise
+    container_name: rustdesk-hbbs-enterprise
+    ports:
+      - "21115:21115"     # TCP端口
+      - "21116:21116"     # TCP/UDP端口
+      - "21116:21116/udp"
+      - "21118:21118"     # WebSocket端口
+      - "21119:21119"     # Web管理界面
+    environment:
+      - RUSTDESK_ENTERPRISE=1
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-change-this-in-production}
+      - ENTERPRISE_DB_URL=sqlite:///data/enterprise.sqlite3
+      - DATABASE_URL=sqlite:///data/db_v2.sqlite3
+      - MAX_DATABASE_CONNECTIONS=10
+      - RUST_LOG=info
+    volumes:
+      - ./data:/data
+      - ./web:/app/web
+    restart: unless-stopped
+    networks:
+      - rustdesk-enterprise
+    depends_on:
+      - hbbr-enterprise
+    command: >
+      /app/hbbs-enterprise 
+      --enterprise 
+      --port 21115 
+      --key ${RUSTDESK_KEY:-your-secret-key}
+      --web-port 21119
+      --db-url sqlite:///data/enterprise.sqlite3
+
+  hbbr-enterprise:
+    build:
+      context: .
+      dockerfile: Dockerfile.enterprise
+    container_name: rustdesk-hbbr-enterprise
+    ports:
+      - "21117:21117"     # 中继端口
+      - "21120:21120"     # WebSocket中继端口
+    environment:
+      - RUST_LOG=info
+      - TOTAL_BANDWIDTH=1000  # MB/s
+      - SINGLE_BANDWIDTH=100  # MB/s
+    volumes:
+      - ./data:/data
+    restart: unless-stopped
+    networks:
+      - rustdesk-enterprise
+    command: >
+      /app/hbbr-enterprise 
+      --port 21117 
+      --key ${RUSTDESK_KEY:-your-secret-key}
+
+  # 可选：PostgreSQL数据库（用于大规模部署）
+  postgres:
+    image: postgres:14
+    container_name: rustdesk-postgres
+    environment:
+      - POSTGRES_DB=rustdesk_enterprise
+      - POSTGRES_USER=rustdesk
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-rustdesk123}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+    networks:
+      - rustdesk-enterprise
+    profiles:
+      - postgres
+
+  # 可选：Redis缓存（用于会话管理）
+  redis:
+    image: redis:7-alpine
+    container_name: rustdesk-redis
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - rustdesk-enterprise
+    profiles:
+      - redis
+
+  # 可选：Nginx反向代理
+  nginx:
+    image: nginx:alpine
+    container_name: rustdesk-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/nginx/ssl
+    restart: unless-stopped
+    networks:
+      - rustdesk-enterprise
+    depends_on:
+      - hbbs-enterprise
+    profiles:
+      - nginx
+
+  # 可选：监控服务
+  prometheus:
+    image: prom/prometheus
+    container_name: rustdesk-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    restart: unless-stopped
+    networks:
+      - rustdesk-enterprise
+    profiles:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana
+    container_name: rustdesk-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin123}
+    volumes:
+      - grafana_data:/var/lib/grafana
+    restart: unless-stopped
+    networks:
+      - rustdesk-enterprise
+    profiles:
+      - monitoring
+
+networks:
+  rustdesk-enterprise:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:

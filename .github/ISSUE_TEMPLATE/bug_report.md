@@ -1,35 +1,35 @@
 ---
-name: Bug report
-about: Create a report to help us improve
-title: ''
-labels: 'bug'
+name: Bug报告
+about: 创建Bug报告帮助我们改进
+title: '[BUG] '
+labels: bug
 assignees: ''
-
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+## Bug描述
+简洁清晰地描述Bug。
 
-**Describe the environment**
- - Install environment: docker, docker swarm, podman, kubernetes, or package
- - If available, the `docker-compose.yaml` file
- - If package, we need the distribution and release: Ubuntu 22.04, Debian 11, ...
- - Or if you're running the plain binary, how you're running it
- - In any case, you have to specify the version in use
+## 复现步骤
+1. 执行 '...'
+2. 点击 '....'
+3. 滚动到 '....'
+4. 看到错误
 
-**How to Reproduce the bug**
-Steps to reproduce the behavior:
-1. Given the previously described environment
-2. Do this and that
-3. I get this error
+## 期望行为
+清晰简洁地描述您期望发生的事情。
 
-**Expected behavior**
-This should happen instead.
+## 实际行为
+清晰简洁地描述实际发生的事情。
 
-**Additional context**
-Add any other context about the problem here.
+## 环境信息
+- OS: [例如 Ubuntu 20.04]
+- 版本: [例如 v1.0.0]
+- 部署方式: [Docker/二进制]
 
-**Notes**
- - Please write in english only. If you provide some images in different languages, you're required to write a translation in english.
- - In any case, **NEVER** put here the content if your `id_ed25519` file
- 
+## 日志信息
+```
+粘贴相关日志信息
+```
+
+## 附加信息
+添加任何其他关于问题的上下文信息。

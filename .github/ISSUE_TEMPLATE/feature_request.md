@@ -1,25 +1,22 @@
 ---
-name: Feature request
-about: Suggest an idea for this project
-title: ''
-labels: 'enhancement'
+name: 功能请求
+about: 建议新功能
+title: '[FEATURE] '
+labels: enhancement
 assignees: ''
-
 ---
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is.
+## 功能描述
+清晰简洁地描述您想要的功能。
 
-**Describe the solution you'd like**
-A clear and concise description of what you want to happen.
+## 问题描述
+清晰简洁地描述问题。例如：我总是感到沮丧当[...]
 
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
+## 解决方案
+清晰简洁地描述您想要的解决方案。
 
-**Additional context**
-Add any other context about the feature request here.
+## 替代方案
+清晰简洁地描述您考虑过的任何替代解决方案或功能。
 
-**Notes**
- - Please write in english only. If you provide some images in different languages, you're required to write a translation in english.
- - In any case, **NEVER** put here the content if your `id_ed25519` file
- 
+## 附加信息
+添加任何其他关于功能请求的上下文或截图。

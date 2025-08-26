@@ -1,12 +1,79 @@
-target
-id*
-db*
-debian-build
-debian/.debhelper
-debian/debhelper-build-stamp
+# Rust
+/target/
+**/*.rs.bk
+Cargo.lock
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
 .DS_Store
-.vscode
-src/version.rs
-db_v2.sqlite3
-test.*
-.idea
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Database
+*.sqlite3
+*.sqlite3-journal
+*.db
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Data directories
+data/
+backups/
+temp/
+
+# SSL certificates
+*.pem
+*.key
+*.crt
+*.p12
+
+# Docker
+.dockerignore
+
+# Build artifacts
+dist/
+build/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Node modules (for web interface)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Coverage reports
+coverage/
+*.lcov
+
+# Dependency directories
+vendor/
+
+# Configuration files with secrets
+config.toml
+config.yaml
+config.json
+
+# Backup files
+*.bak
+*.backup
+
+# Archive files
+*.tar.gz
+*.zip
+*.rar
